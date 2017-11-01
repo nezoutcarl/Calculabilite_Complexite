@@ -1,5 +1,5 @@
-			  # |DM Calculabilite_Complexite| #
-	    ################ GUIDE D'UTILISATION ####################"
+			  DM Calculabilite_Complexite
+	   GUIDE D'UTILISATION
 
 ####Compilations##
 -> Programme
