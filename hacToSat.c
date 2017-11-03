@@ -3,19 +3,53 @@
 #include "all.h"
 #include <string.h>
 
+/* ***** Partie concernant le graphe utilisé  ****** */
 int orderG(){
-return 10;}
+    return 95;}
 
-int sizeG(){
-return 10;}
+    int sizeG(){
+        return  755;
+    }
 
-int are_adjacent(int u, int v){
- if(0<= u && 0<=v && u<10 && v<10){
-  return (((10+u-v)%10==1)||((10+v-u)%10==1));
- }	
- else return 0;
+int adj(int u, int v, int n){
+    int x,y;
+    if (u==v)
+        return 0;
+    if(u>v){
+        x=u;
+        y=v;
+    }
+    else{
+        x=v;
+        y=u;
+    }
+    if(x==1)
+        return 1;
+    if(x<n/2)
+        return adj(x,y,n/2);
+    if(x==n-1){
+        if(y>=n/2) 
+            return 1;
+        else return 0;
+    }
+    if(x>=n/2 && y<n/2)
+        return adj(x-n/2,y,n/2);
+    return 0;
 }
 
+
+
+
+int are_adjacent(int u, int v){
+    if(0<=u && 0<=v && u<orderG() && v<orderG())
+        return adj(u,v,orderG());
+    return 0;
+}
+
+
+
+
+/* ***************************************************** */
 
 
 /**
@@ -27,24 +61,36 @@ int setNbClauses(int h){
   int res, n, tmp, i,k,j;
   tmp=0; //variable pour compter le nombre de clauses de la sous clauses de 1)
   n=orderG();// le nombre de sommets
-  
-  for( i=0; i<n; i++){
-            for ( j=0; j<=h; j++){
-                for( k=j+1; k<=h; k++){
-		  tmp++;		  
-		}
-	    }
+ 
+  i=0;
+  while(i<n){
+    j=0;
+    while(j<=h){
+      k=j+1;
+      while(k<=h){
+	tmp++;		  
+	k++;	
+      }
+      j++;      
+    }
+    i++;
   }
   res= n + tmp; //nombre de clauses contrainte 1)
-  res += n +2; //contrainte 2 et 3 
+  res += n +1;//contrainte 2 
+  res++;//contrainte 3
   res += n*h; //contranite 4
   return res;
 }
 
+char* initCommentaires(){
+  
+}
+
+
 /**
  * @brief initialise et écrit dans un fichier la formule cnf correspondante aux contraintes de notre énoncé
- * @param argc
- * @param argv
+ * @param argc nombre de chaînes de caractères sur lequel pointe argv
+ * @param argv tableau de pointeurs sur chaines lors de l'exécution du programme
  * */
 int main(int argc, char *argv[]){
     //test sur l'exécution correcte du programme : il faut un argument strictement positif
@@ -101,8 +147,8 @@ int main(int argc, char *argv[]){
 	}
 	else {
 	  if(strcmp(saisie,"o")==0){
-	    printf("Saisir le commentaire svp :\n");
-	    scanf("%[^ \n]",commentaire);
+	    printf("Saisir le commentaire svp (remplacer l'espace par un _ :\n");
+	    scanf("%s",commentaire);
 	    fprintf(cnf_file, "c\nc %s \nc\n", commentaire);
 	  }
 	  else{
@@ -114,7 +160,7 @@ int main(int argc, char *argv[]){
         
         /* Ecriture dans le fichier des clauses selon chaque contraintes */
 	
-        //1) Pour chaque sommet possède une hauteur propre
+        //1) chaque sommet possède une hauteur propre
         i=0;
 	while(i<n){//parcours des sommets
 	    j=0;
@@ -180,7 +226,7 @@ int main(int argc, char *argv[]){
                 fprintf(cnf_file, "-%d ", tab[i][h]);
                 j=0;
 		while(j<n){
-                    if((are_adjacent(i,j)) && (i!=j)){
+                    if((are_adjacent(i,j)==1) && (i!=j)){
                         fprintf(cnf_file,"%d ",tab[j][h-1]);
                     }
                     j++;
@@ -196,7 +242,6 @@ int main(int argc, char *argv[]){
         
         // Fermeture du fichier qui a été ouvert   
         fclose(cnf_file); 
-	printf("variable : %d , hauteur %d\n", nb_variables, profondeur_max);
 	return EXIT_SUCCESS;
     }       
 
